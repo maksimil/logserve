@@ -14,3 +14,7 @@ Have a simple logger library for go to log info in console or on localhost. And 
 - Log types
     - [ ] Log key-value pairs
     - [ ] Log benchmarks
+- [ ] Output methods
+    - [ ] Web api
+    - [ ] Log file
+    - [ ] Chrome tracing
