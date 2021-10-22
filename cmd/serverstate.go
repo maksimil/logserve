@@ -25,3 +25,11 @@ func (state *ServerState) ProcessQuery(query string) string {
 	state.RawLog = append(state.RawLog, RawLogLine{timestamp, query})
 	return "OK"
 }
+
+func (state *ServerState) LogsSince(timestamp int64) []RawLogLine {
+	i := len(state.RawLog) - 1
+	for i >= 0 && state.RawLog[i].Timestamp >= timestamp {
+		i -= 1
+	}
+	return state.RawLog[i+1:]
+}

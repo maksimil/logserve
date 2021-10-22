@@ -25,8 +25,8 @@ Requests are sent to `/data` with GET.
 - [x] Getting state in json form
         `/data/json`
         returns in form `{keyvalues, log: [{timestamp, query}]}`
-- [ ] Getting logs since a timestamp
-        `/data/since&t=<timestamp>`
+- [x] Getting logs since a timestamp
+        `/data/since?t=<timestamp>`
         returns all the logs in raw form since `timestamp` in form `[{timestamp, query}]`
 - [ ] Static page returning from `/data`
 - [ ] Display log information
