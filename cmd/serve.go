@@ -34,7 +34,6 @@ func LogHandler(rw http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		query := string(rqbody)
-		log.Println(query)
 		response := state.ProcessQuery(query)
 		fmt.Fprint(rw, response)
 	} else {
