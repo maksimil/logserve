@@ -12,7 +12,7 @@ type RawLogLine struct {
 
 type ServerState struct {
 	StartTime  int64             `json:"-"`
-	TypeValues map[string]string `json:"typevalues"`
+	TypeValues map[string]string `json:"keyvalues"`
 	RawLog     []RawLogLine      `json:"log"`
 }
 
