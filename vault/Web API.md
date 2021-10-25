@@ -9,7 +9,7 @@ Logs are sent to `/log` with POST in plain text. Logs are sent in form of querie
 - [x] Logging
     - `LOG <log info>`  
          Logs the log information
-- [ ] Key-value
+- [x] Key-value
     - `KEY_SET key=<key> value=<value>`  
          Records a new value for the key
     - `KEY_REMOVE key=<key>`  
@@ -28,6 +28,7 @@ Requests are sent to `/data` with GET.
 - [x] Getting logs since a timestamp  
          `/data/since?t=<timestamp>`  
          returns all the logs in raw form since `timestamp` in form `[{timestamp, query}]`
+- [ ] `hide` optional argument for hiding a command on display
 - Static page returning from `/data`
     - [ ] Display log information in form of `<timestamp> <type> <values from data>`
     - [ ] Display key-value info
