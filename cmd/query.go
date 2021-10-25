@@ -65,7 +65,24 @@ func ParseQueryArgs(query string) (map[string]string, error) {
 const NECESSARY_ARG = "%s argument is necessary"
 const UNNECESSARY_ARG = "%s argument is unnecessary"
 
-func PopulateQueryArgs(argmap map[string]*string, query string) error {
+const (
+	OPTIONAL = uint8(1)
+)
+
+type ArgAdress struct {
+	addr       *string
+	properties uint8
+}
+
+func Adress(addr *string) ArgAdress {
+	return ArgAdress{addr, 0}
+}
+
+func Optional(addr *string) ArgAdress {
+	return ArgAdress{addr, OPTIONAL}
+}
+
+func PopulateQueryArgs(argmap map[string]ArgAdress, query string) error {
 	args, err := ParseQueryArgs(query)
 
 	if err != nil {
@@ -75,12 +92,12 @@ func PopulateQueryArgs(argmap map[string]*string, query string) error {
 	for key, addr := range argmap {
 		value, has := args[key]
 
-		if !has {
+		if addr.properties&OPTIONAL == 0 && !has {
 			return fmt.Errorf(NECESSARY_ARG, key)
+		} else if has {
+			*addr.addr = value
+			delete(args, key)
 		}
-
-		*addr = value
-		delete(args, key)
 	}
 
 	for key := range args {

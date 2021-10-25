@@ -87,10 +87,9 @@ func TestQueryPopulation(t *testing.T) {
 	g := goblin.Goblin(t)
 
 	g.Describe("QueryPopulating", func() {
-
 		g.It("Populates values", func() {
 			var key1, value, thing, thing2 string
-			err := PopulateQueryArgs(map[string]*string{"key1": &key1, "value": &value, "thing": &thing, "thing2": &thing2}, "key1=hi value=hello thing=thing2=")
+			err := PopulateQueryArgs(map[string]ArgAdress{"key1": Adress(&key1), "value": Adress(&value), "thing": Adress(&thing), "thing2": Adress(&thing2)}, "key1=hi value=hello thing=thing2=")
 
 			g.Assert(err).Eql(nil)
 			g.Assert(key1).Eql("hi")
@@ -101,16 +100,33 @@ func TestQueryPopulation(t *testing.T) {
 
 		g.It("Errors out on not having an arg", func() {
 			var key string
-			err := PopulateQueryArgs(map[string]*string{"key": &key}, "value=")
+			err := PopulateQueryArgs(map[string]ArgAdress{"key": Adress(&key)}, "value=")
 
 			g.Assert(err).Eql(fmt.Errorf(NECESSARY_ARG, "key"))
 		})
 
 		g.It("Errors out on having an unnecessary arg", func() {
 			var key string
-			err := PopulateQueryArgs(map[string]*string{"key": &key}, "value=key=v")
+			err := PopulateQueryArgs(map[string]ArgAdress{"key": Adress(&key)}, "value=key=v")
 
 			g.Assert(err).Eql(fmt.Errorf(UNNECESSARY_ARG, "value"))
+		})
+
+		g.It("Does not require an optional arg", func() {
+			var key, optional string
+			optional = "value"
+			err := PopulateQueryArgs(map[string]ArgAdress{"key": Adress(&key), "optional": Optional(&optional)}, "key=va")
+
+			g.Assert(err).Eql(nil)
+			g.Assert(key).Eql("va")
+			g.Assert(optional).Eql("value")
+
+			optional = "value"
+			err = PopulateQueryArgs(map[string]ArgAdress{"key": Adress(&key), "optional": Optional(&optional)}, "key=va optional=vl")
+
+			g.Assert(err).Eql(nil)
+			g.Assert(key).Eql("va")
+			g.Assert(optional).Eql("vl")
 		})
 	})
 }

@@ -60,9 +60,9 @@ func init() {
 
 		"KEY_SET": func(query string, state *ServerState) string {
 			var key, value string
-			err := PopulateQueryArgs(map[string]*string{
-				"key":   &key,
-				"value": &value,
+			err := PopulateQueryArgs(map[string]ArgAdress{
+				"key":   Adress(&key),
+				"value": Adress(&value),
 			}, query)
 
 			if err != nil {
@@ -79,8 +79,8 @@ func init() {
 
 		"KEY_REMOVE": func(query string, state *ServerState) string {
 			var key string
-			err := PopulateQueryArgs(map[string]*string{
-				"key": &key,
+			err := PopulateQueryArgs(map[string]ArgAdress{
+				"key": Adress(&key),
 			}, query)
 
 			if err != nil {
