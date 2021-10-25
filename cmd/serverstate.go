@@ -59,21 +59,14 @@ func init() {
 		},
 
 		"KEY_SET": func(query string, state *ServerState) string {
-			argmap, err := ParseQueryArgs(query)
+			var key, value string
+			err := PopulateQueryArgs(map[string]*string{
+				"key":   &key,
+				"value": &value,
+			}, query)
 
 			if err != nil {
 				return err.Error()
-			}
-
-			key, haskey := argmap["key"]
-			value, hasvalue := argmap["value"]
-
-			if !haskey {
-				return "key argument is necessary"
-			}
-
-			if !hasvalue {
-				return "value argument is necessary"
 			}
 
 			if key == "" {
@@ -85,15 +78,13 @@ func init() {
 		},
 
 		"KEY_REMOVE": func(query string, state *ServerState) string {
-			argmap, err := ParseQueryArgs(query)
+			var key string
+			err := PopulateQueryArgs(map[string]*string{
+				"key": &key,
+			}, query)
 
 			if err != nil {
 				return err.Error()
-			}
-
-			key, haskey := argmap["key"]
-			if !haskey {
-				return "key argument is necessary"
 			}
 
 			if key == "" {

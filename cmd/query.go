@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -59,4 +60,32 @@ func ParseQueryArgs(query string) (map[string]string, error) {
 	}
 
 	return argmap, nil
+}
+
+const NECESSARY_ARG = "%s argument is necessary"
+const UNNECESSARY_ARG = "%s argument is unnecessary"
+
+func PopulateQueryArgs(argmap map[string]*string, query string) error {
+	args, err := ParseQueryArgs(query)
+
+	if err != nil {
+		return err
+	}
+
+	for key, addr := range argmap {
+		value, has := args[key]
+
+		if !has {
+			return fmt.Errorf(NECESSARY_ARG, key)
+		}
+
+		*addr = value
+		delete(args, key)
+	}
+
+	for key := range args {
+		return fmt.Errorf(UNNECESSARY_ARG, key)
+	}
+
+	return nil
 }
