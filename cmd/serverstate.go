@@ -89,38 +89,21 @@ func ParseQueryArgs(query string) (map[string]string, error) {
 		}
 	}
 
+	keyranges = append(keyranges, [2]int{len(query), -1})
+
 	argmap := map[string]string{}
 
-	// check if no keyed args
-	if len(keyranges) == 0 {
-		argmap[""] = query
-		return argmap, nil
-	} else {
-		// pre-named args
-		nokey := strings.Trim(query[:keyranges[0][0]], " ")
-		if nokey != "" {
-			argmap[""] = nokey
-		}
+	// pre-named args
+	nokey := strings.Trim(query[:keyranges[0][0]], " ")
+	if nokey != "" {
+		argmap[""] = nokey
+	}
 
-		// to last named arg
-		for i := 0; i < len(keyranges)-1; i++ {
-			ks := keyranges[i][0]
-			ke := keyranges[i][1]
-			k := keyranges[i+1][0]
-
-			key := strings.Trim(query[ks:ke], " ")
-
-			if key == "" {
-				return nil, errors.New(EMPTY_KEY_ERROR)
-			}
-
-			value := strings.Trim(query[ke+1:k], " ")
-			argmap[key] = value
-		}
-
-		// last named arg
-		ks := keyranges[len(keyranges)-1][0]
-		ke := keyranges[len(keyranges)-1][1]
+	// to last named arg
+	for i := 0; i < len(keyranges)-1; i++ {
+		ks := keyranges[i][0]
+		ke := keyranges[i][1]
+		k := keyranges[i+1][0]
 
 		key := strings.Trim(query[ks:ke], " ")
 
@@ -128,10 +111,10 @@ func ParseQueryArgs(query string) (map[string]string, error) {
 			return nil, errors.New(EMPTY_KEY_ERROR)
 		}
 
-		value := strings.Trim(query[ke+1:], " ")
-
+		value := strings.Trim(query[ke+1:k], " ")
 		argmap[key] = value
-
-		return argmap, nil
 	}
+
+	return argmap, nil
+
 }
