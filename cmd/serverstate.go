@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -61,5 +62,59 @@ func init() {
 }
 
 func ParseQueryArgs(query string) map[string]string {
-	panic("Unimplemented!")
+	query = strings.Trim(query, " ")
+
+	// check if the query is not empty
+	if query == "" {
+		return map[string]string{}
+	}
+
+	// find all the key statements
+	keyranges := [][2]int{}
+	for i := 0; i < len(query); i++ {
+		if query[i] == '=' {
+			j := i - 1
+			for j >= 0 && query[j] != ' ' && query[j] != '=' {
+				j -= 1
+			}
+			keyranges = append(keyranges, [2]int{j + 1, i})
+		}
+	}
+
+	argmap := map[string]string{}
+
+	// check if no keyed args
+	if len(keyranges) == 0 {
+		argmap[""] = query
+		return argmap
+	} else {
+		// pre-named args
+		nokey := strings.Trim(query[:keyranges[0][0]], " ")
+		if nokey != "" {
+			argmap[""] = nokey
+		}
+
+		// to last named arg
+		for i := 0; i < len(keyranges)-1; i++ {
+			ks := keyranges[i][0]
+			ke := keyranges[i][1]
+			k := keyranges[i+1][0]
+
+			key := strings.Trim(query[ks:ke], " ")
+			value := strings.Trim(query[ke+1:k], " ")
+
+			argmap[key] = value
+		}
+
+		// last named arg
+		ks := keyranges[len(keyranges)-1][0]
+		ke := keyranges[len(keyranges)-1][1]
+
+		key := strings.Trim(query[ks:ke], " ")
+		value := strings.Trim(query[ke+1:], " ")
+
+		argmap[key] = value
+
+		return argmap
+	}
 }

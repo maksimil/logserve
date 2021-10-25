@@ -58,6 +58,16 @@ func TestQueryParsing(t *testing.T) {
 			expected map[string]string
 		}{
 			{
+				"",
+				map[string]string{},
+			},
+			{
+				"Raw long value",
+				map[string]string{
+					"": "Raw long value",
+				},
+			},
+			{
 				"key=Hello value=Hi",
 				map[string]string{
 					"key":   "Hello",
@@ -79,12 +89,23 @@ func TestQueryParsing(t *testing.T) {
 					"value": "Hello",
 				},
 			},
+			{
+				"Long pre value key=hello   secondkey=hi hello bye lastone= llastone=",
+				map[string]string{
+					"":          "Long pre value",
+					"key":       "hello",
+					"secondkey": "hi hello bye",
+					"lastone":   "",
+					"llastone":  "",
+				},
+			},
 		}
 
-		g.It("ParseQuieryArgs", func() {
-			for _, test := range QUERIES {
+		for i := range QUERIES {
+			test := QUERIES[i]
+			g.It(test.query, func() {
 				g.Assert(ParseQueryArgs(test.query)).Eql(test.expected)
-			}
-		})
+			})
+		}
 	})
 }

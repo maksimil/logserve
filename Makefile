@@ -8,4 +8,4 @@ install:
 	go install .
 
 test:
-	go test ./cmd -v
+	go test ./cmd
