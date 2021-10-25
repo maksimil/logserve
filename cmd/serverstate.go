@@ -24,7 +24,6 @@ func NewServerState() ServerState {
 
 func (state *ServerState) ProcessQuery(query string) string {
 	timestamp := time.Now().UnixMilli() - state.StartTime
-	state.RawLog = append(state.RawLog, RawLogLine{timestamp, query})
 
 	widx := 0
 	for widx < len(query) && query[widx] != ' ' {
@@ -37,6 +36,7 @@ func (state *ServerState) ProcessQuery(query string) string {
 	function, includes := TYPES_QUERIES[ty]
 
 	if includes {
+		state.RawLog = append(state.RawLog, RawLogLine{timestamp, query})
 		return function(endquery, state)
 	} else {
 		return fmt.Sprintf("Server didn't find command %s", ty)
