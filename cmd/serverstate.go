@@ -59,3 +59,7 @@ func init() {
 		},
 	}
 }
+
+func ParseQueryArgs(query string) map[string]string {
+	panic("Unimplemented!")
+}

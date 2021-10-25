@@ -46,4 +46,45 @@ func TestServerState(t *testing.T) {
 			g.Assert(serverstate.LogsSince(0)).Eql(serverstate.RawLog)
 		})
 	})
+
+}
+
+func TestQueryParsing(t *testing.T) {
+	g := goblin.Goblin(t)
+
+	g.Describe("QueryParsing", func() {
+		QUERIES := []struct {
+			query    string
+			expected map[string]string
+		}{
+			{
+				"key=Hello value=Hi",
+				map[string]string{
+					"key":   "Hello",
+					"value": "Hi",
+				},
+			},
+			{
+				"Pre-value key=value=",
+				map[string]string{
+					"":      "Pre-value",
+					"key":   "",
+					"value": "",
+				},
+			},
+			{
+				"key=Hi  value=Hello",
+				map[string]string{
+					"key":   "Hi",
+					"value": "Hello",
+				},
+			},
+		}
+
+		g.It("ParseQuieryArgs", func() {
+			for _, test := range QUERIES {
+				g.Assert(ParseQueryArgs(test.query)).Eql(test.expected)
+			}
+		})
+	})
 }
