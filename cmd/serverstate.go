@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -61,12 +62,16 @@ func init() {
 	}
 }
 
-func ParseQueryArgs(query string) map[string]string {
+const (
+	EMPTY_KEY_ERROR = "\"\" is not a valid key"
+)
+
+func ParseQueryArgs(query string) (map[string]string, error) {
 	query = strings.Trim(query, " ")
 
 	// check if the query is not empty
 	if query == "" {
-		return map[string]string{}
+		return map[string]string{}, nil
 	}
 
 	// find all the key statements
@@ -77,6 +82,9 @@ func ParseQueryArgs(query string) map[string]string {
 			for j >= 0 && query[j] != ' ' && query[j] != '=' {
 				j -= 1
 			}
+			if j == i-1 {
+				return nil, errors.New(EMPTY_KEY_ERROR)
+			}
 			keyranges = append(keyranges, [2]int{j + 1, i})
 		}
 	}
@@ -86,7 +94,7 @@ func ParseQueryArgs(query string) map[string]string {
 	// check if no keyed args
 	if len(keyranges) == 0 {
 		argmap[""] = query
-		return argmap
+		return argmap, nil
 	} else {
 		// pre-named args
 		nokey := strings.Trim(query[:keyranges[0][0]], " ")
@@ -101,8 +109,12 @@ func ParseQueryArgs(query string) map[string]string {
 			k := keyranges[i+1][0]
 
 			key := strings.Trim(query[ks:ke], " ")
-			value := strings.Trim(query[ke+1:k], " ")
 
+			if key == "" {
+				return nil, errors.New(EMPTY_KEY_ERROR)
+			}
+
+			value := strings.Trim(query[ke+1:k], " ")
 			argmap[key] = value
 		}
 
@@ -111,10 +123,15 @@ func ParseQueryArgs(query string) map[string]string {
 		ke := keyranges[len(keyranges)-1][1]
 
 		key := strings.Trim(query[ks:ke], " ")
+
+		if key == "" {
+			return nil, errors.New(EMPTY_KEY_ERROR)
+		}
+
 		value := strings.Trim(query[ke+1:], " ")
 
 		argmap[key] = value
 
-		return argmap
+		return argmap, nil
 	}
 }
