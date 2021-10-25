@@ -16,6 +16,7 @@ func TestServerState(t *testing.T) {
 		g.BeforeEach(func() {
 			serverstate = NewServerState()
 		})
+
 		g.It(".ProcessQuery on LOG  quieries", func() {
 			r := serverstate.ProcessQuery("LOG hello")
 
@@ -52,6 +53,42 @@ func TestServerState(t *testing.T) {
 
 			g.Assert(len(serverstate.RawLog)).Eql(0)
 			g.Assert(r).Eql("Server didn't find command L")
+		})
+
+		g.It("Set key value", func() {
+			r := serverstate.ProcessQuery("KEY_SET key=hi value=hello")
+
+			g.Assert(r).Eql("OK")
+			g.Assert(serverstate.KeyValues).Eql(map[string]string{"hi": "hello"})
+		})
+
+		g.It("Remove key value", func() {
+			r := serverstate.ProcessQuery("KEY_SET key=hi value=hello")
+
+			g.Assert(r).Eql("OK")
+			g.Assert(serverstate.KeyValues).Eql(map[string]string{"hi": "hello"})
+
+			r = serverstate.ProcessQuery("KEY_REMOVE key=hi")
+
+			g.Assert(r).Eql("OK")
+			g.Assert(serverstate.KeyValues).Eql(map[string]string{})
+		})
+
+		var keyerrors = [][2]string{
+			{"KEY_SET value=hello", "key argument is necessary"},
+			{"KEY_SET key=h", "value argument is necessary"},
+			{"KEY_SET key=value=", "key should not be an empty string"},
+			{"KEY_REMOVE", "key argument is necessary"},
+			{"KEY_REMOVE key=", "key should not be an empty string"},
+		}
+
+		g.It("KEY_SET and KEY_REMOVE errors", func() {
+			for _, keyerror := range keyerrors {
+				r := serverstate.ProcessQuery(keyerror[0])
+				g.Assert(r).Eql(keyerror[1])
+			}
+
+			g.Assert(len(serverstate.KeyValues)).Eql(0)
 		})
 	})
 

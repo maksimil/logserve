@@ -11,9 +11,9 @@ type RawLogLine struct {
 }
 
 type ServerState struct {
-	StartTime  int64             `json:"-"`
-	TypeValues map[string]string `json:"keyvalues"`
-	RawLog     []RawLogLine      `json:"log"`
+	StartTime int64             `json:"-"`
+	KeyValues map[string]string `json:"keyvalues"`
+	RawLog    []RawLogLine      `json:"log"`
 }
 
 func NewServerState() ServerState {
@@ -30,7 +30,7 @@ func (state *ServerState) ProcessQuery(query string) string {
 	}
 
 	ty := query[:widx]
-	endquery := query[widx+1:]
+	endquery := query[widx:]
 
 	function, includes := TYPES_QUERIES[ty]
 
@@ -55,6 +55,53 @@ var TYPES_QUERIES map[string]func(query string, state *ServerState) string
 func init() {
 	TYPES_QUERIES = map[string]func(query string, state *ServerState) string{
 		"LOG": func(query string, state *ServerState) string {
+			return "OK"
+		},
+
+		"KEY_SET": func(query string, state *ServerState) string {
+			argmap, err := ParseQueryArgs(query)
+
+			if err != nil {
+				return err.Error()
+			}
+
+			key, haskey := argmap["key"]
+			value, hasvalue := argmap["value"]
+
+			if !haskey {
+				return "key argument is necessary"
+			}
+
+			if !hasvalue {
+				return "value argument is necessary"
+			}
+
+			if key == "" {
+				return "key should not be an empty string"
+			}
+
+			state.KeyValues[key] = value
+			return "OK"
+		},
+
+		"KEY_REMOVE": func(query string, state *ServerState) string {
+			argmap, err := ParseQueryArgs(query)
+
+			if err != nil {
+				return err.Error()
+			}
+
+			key, haskey := argmap["key"]
+			if !haskey {
+				return "key argument is necessary"
+			}
+
+			if key == "" {
+				return "key should not be an empty string"
+			}
+
+			delete(state.KeyValues, key)
+
 			return "OK"
 		},
 	}
