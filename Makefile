@@ -11,4 +11,4 @@ test:
 	go test ./cmd
 
 build-web:
-	cd web; go run ./build.go
+	cd web; cgscript ./build.go

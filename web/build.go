@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	esbuild "github.com/evanw/esbuild/pkg/api"
 )
@@ -11,7 +10,6 @@ import (
 const HTMLTEMPLATE = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Document</title></head><body></body><script>%s</script></html>`
 
 func main() {
-	st := time.Now()
 	result := esbuild.Build(esbuild.BuildOptions{
 		EntryPoints: []string{"./main.js"},
 		Write:       false,
@@ -42,5 +40,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Done in %dms\nOutput is %.2fkb", time.Since(st).Milliseconds(), float32(len(outhtml))/1024)
+	fmt.Printf("build.html is %.2fkb", float32(len(outhtml))/1024)
 }
