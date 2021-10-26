@@ -1,0 +1,19 @@
+lockfileVersion: 5.3
+
+specifiers:
+  lit-html: ^2.0.1
+
+dependencies:
+  lit-html: 2.0.1
+
+packages:
+
+  /@types/trusted-types/2.0.2:
+    resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
+    dev: false
+
+  /lit-html/2.0.1:
+    resolution: {integrity: sha512-KF5znvFdXbxTYM/GjpdOOnMsjgRcFGusTnB54ixnCTya5zUR0XqrDRj29ybuLS+jLXv1jji6Y8+g4W7WP8uL4w==}
+    dependencies:
+      '@types/trusted-types': 2.0.2
+    dev: false
