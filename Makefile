@@ -1,8 +1,8 @@
 run:
-	go run .
+	go run . serve
 
 build:
-	go build -ldflags "-s -w" .
+	go build .
 
 install: 
 	go install .
@@ -11,4 +11,4 @@ test:
 	go test ./cmd
 
 build-web:
-	cd web; cgscript ./build.go
+	cgscript ./web/build.go

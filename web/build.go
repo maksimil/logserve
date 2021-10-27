@@ -3,15 +3,21 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 
 	esbuild "github.com/evanw/esbuild/pkg/api"
 )
 
 const HTMLTEMPLATE = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Document</title></head><body></body><script>%s</script></html>`
 
+const (
+	MAINJS    = "web/main.js"
+	BUILDHTML = "cmd/_gen/build.html"
+)
+
 func main() {
 	result := esbuild.Build(esbuild.BuildOptions{
-		EntryPoints: []string{"./main.js"},
+		EntryPoints: []string{MAINJS},
 		Write:       false,
 		Outfile:     "bundle.js",
 
@@ -34,8 +40,14 @@ func main() {
 
 	outhtml := fmt.Sprintf(HTMLTEMPLATE, string(result.OutputFiles[0].Contents))
 
-	err := os.WriteFile("./build/build.html", []byte(outhtml), 0666)
+	if _, err := os.Stat(path.Dir(BUILDHTML)); os.IsNotExist(err) {
+		err := os.MkdirAll(path.Dir(BUILDHTML), 0666)
+		if err != nil {
+			panic(err)
+		}
+	}
 
+	err := os.WriteFile(BUILDHTML, []byte(outhtml), 0666)
 	if err != nil {
 		panic(err)
 	}

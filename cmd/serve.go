@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -19,11 +20,24 @@ var (
 	state ServerState
 )
 
+const ERR_METHOD = "%s was called using %s"
+
+//go:embed _gen/build.html
+var WEBPAGEHTML string
+
+func WebPageHandler(rw http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		rw.Write([]byte(WEBPAGEHTML))
+	} else {
+		log.Printf(ERR_METHOD, "/data", r.Method)
+	}
+}
+
 func RecordHandler(rw http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		json.NewEncoder(rw).Encode(state)
 	} else {
-		log.Printf("/data/json was called using %s", r.Method)
+		log.Printf(ERR_METHOD, "/data/json", r.Method)
 	}
 }
 
@@ -37,7 +51,7 @@ func LogHandler(rw http.ResponseWriter, r *http.Request) {
 		response := state.ProcessQuery(query)
 		fmt.Fprint(rw, response)
 	} else {
-		log.Printf("/log was called using %s", r.Method)
+		log.Printf(ERR_METHOD, "/log", r.Method)
 	}
 }
 
@@ -55,12 +69,15 @@ func SinceHandler(rw http.ResponseWriter, r *http.Request) {
 		data := state.LogsSince(int64(timestamp))
 		json.NewEncoder(rw).Encode(data)
 	} else {
-		log.Printf("/data/since was called using %s", r.Method)
+		log.Printf(ERR_METHOD, "/data/since", r.Method)
 	}
 }
 
 func RunServe(cmd *cobra.Command, args []string) {
 	state = NewServerState()
+
+	// getting the static web page
+	http.HandleFunc("/data", WebPageHandler)
 
 	// getting the data in json form
 	http.HandleFunc("/data/json", RecordHandler)
@@ -72,6 +89,7 @@ func RunServe(cmd *cobra.Command, args []string) {
 	http.HandleFunc("/log", LogHandler)
 
 	fmt.Printf("Listening on http://localhost:%d\n", port)
+	fmt.Printf("Access data on http://localhost:%d/data\n", port)
 	if err := http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), nil); err != nil {
 		panic(err)
 	}

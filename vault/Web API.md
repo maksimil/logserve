@@ -29,8 +29,8 @@ Requests are sent to `/data` with GET.
          `/data/since?t=<timestamp>`  
          returns all the logs in raw form since `timestamp` in form `[{timestamp, query}]`
 - [ ] `hide` optional argument for hiding a command on display
-- Static page returning from `/data`
-    - [ ] Display log information in form of `<timestamp> <type> <values from data>`
-    - [ ] Display key-value info
-    - [ ] Ability to hide log info or key-value info or both
-    - [ ] Ability to open them in different browser windows
+- [x] Static page returning from `/data`
+- [ ] Display log information in form of `<timestamp> <type> <values from data>`
+- [ ] Display key-value info
+- [ ] Ability to hide log info or key-value info or both
+- [ ] Ability to open them in different browser windows
