@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "build-css": "windicss windi.css -mto main.css -f windi.config.js"
+  },
   "dependencies": {
     "lit-html": "^2.0.1"
+  },
+  "devDependencies": {
+    "windicss": "^3.2.0"
   }
 }

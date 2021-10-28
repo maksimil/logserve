@@ -36,6 +36,7 @@ func (state *ServerState) ProcessQuery(query string) string {
 
 	if includes {
 		state.RawLog = append(state.RawLog, RawLogLine{timestamp, query})
+		fmt.Printf("[%d] %s\n", timestamp, query)
 		return function(endquery, state)
 	} else {
 		return fmt.Sprintf("Server didn't find command %s", ty)

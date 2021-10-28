@@ -2,9 +2,13 @@ lockfileVersion: 5.3
 
 specifiers:
   lit-html: ^2.0.1
+  windicss: ^3.2.0
 
 dependencies:
   lit-html: 2.0.1
+
+devDependencies:
+  windicss: 3.2.0
 
 packages:
 
@@ -17,3 +21,9 @@ packages:
     dependencies:
       '@types/trusted-types': 2.0.2
     dev: false
+
+  /windicss/3.2.0:
+    resolution: {integrity: sha512-z0q789VZXKdRBrAsfkR+1vOYCb7bS1kec1hyaulT4NClNgO9zGObWbiN+9Jwk0Iw7CLdk/QCB/WCF+zVmr0WpQ==}
+    engines: {node: '>= 12'}
+    hasBin: true
+    dev: true
