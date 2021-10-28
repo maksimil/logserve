@@ -1,7 +1,11 @@
 import { html, render } from "lit-html";
 
+const UPDATE_PERIOD = 100;
+
 type ServerData = { keyvalues: any; log: [RawLogLine] };
 type RawLogLine = { timestamp: number; query: string };
+
+let data: ServerData;
 
 const MainElement = ({ keyvalues, log }: ServerData) =>
   html`<div class="font-mono">
@@ -16,11 +20,14 @@ const LogElement = (log: RawLogLine) =>
     <td>${log.query}</td>
   </tr>`;
 
-const Main = async () => {
-  const data: ServerData = await (await fetch("/data/json")).json();
-  console.log(data);
-
+const Render = async () => {
+  data = await (await fetch("/data/json")).json();
   render(MainElement(data), document.body);
+  setTimeout(Render, UPDATE_PERIOD);
+};
+
+const Main = async () => {
+  Render();
 };
 
 Main();
