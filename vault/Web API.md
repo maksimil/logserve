@@ -29,6 +29,9 @@ Requests are sent to `/data` with GET.
 - [x] Getting logs since a timestamp  
          `/data/since?t=<timestamp>`  
          returns all the logs in raw form since `timestamp` in form `[LogLine]`
+- [ ] Getting keyvalue data  
+         `/data/keyvalues`  
+         returns in from `map[string]string`
 - [x] add group argument
 - [ ] add filtering in groups
 - [x] Static page returning from `/data`

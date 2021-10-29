@@ -39,8 +39,16 @@ const MainElement = ({ keyvalues, log }: ServerData) =>
     </table>
   </div>`;
 
+const SplitQuery = (query: string): [string, string] => {
+  let i = 0;
+  while (i < query.length && query[i] != " ") {
+    i += 1;
+  }
+  return [query.slice(0, i), query.slice(i + 1)];
+};
+
 const LogElement = (log: RawLogLine) => {
-  const [cmd, args] = log.query.split(" ", 2);
+  const [cmd, args] = SplitQuery(log.query);
   const cmd_color = CMD_COLORS[cmd] || CMD_COLORS["_"];
   const args_color = ARGS_COLORS[log.attributes.group] || ARGS_COLORS["_"];
 

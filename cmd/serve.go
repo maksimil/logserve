@@ -77,6 +77,14 @@ func SinceHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func KeyvaluesHandler(rw http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		json.NewEncoder(rw).Encode(state.KeyValues)
+	} else {
+		log.Printf(ERR_METHOD, "/data/keyvalues", r.Method)
+	}
+}
+
 func RunServe(cmd *cobra.Command, args []string) {
 	state = NewServerState()
 
@@ -88,6 +96,9 @@ func RunServe(cmd *cobra.Command, args []string) {
 
 	// getting list of logs since a time
 	http.HandleFunc("/data/since", SinceHandler)
+
+	// getting keyvalue data
+	http.HandleFunc("/data/keyvalues", KeyvaluesHandler)
 
 	// adding log information
 	http.HandleFunc("/log", LogHandler)
