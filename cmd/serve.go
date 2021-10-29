@@ -92,14 +92,6 @@ func RunServe(cmd *cobra.Command, args []string) {
 	// adding log information
 	http.HandleFunc("/log", LogHandler)
 
-	go func() {
-		queries := []string{"LOG hello", "KEY_SET value=a", "KEY_REMOVE key=a", "KET_SET key=a value=b", "U hello"}
-		for _, query := range queries {
-			fmt.Println(query)
-			fmt.Println(state.ProcessQuery(query))
-		}
-	}()
-
 	fmt.Printf("Listening on http://localhost:%d\n", port)
 	fmt.Printf("Access data on http://localhost:%d/data\n", port)
 	if err := http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), nil); err != nil {

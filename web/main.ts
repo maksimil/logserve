@@ -2,7 +2,8 @@ import { html, render } from "lit-html";
 
 const UPDATE_PERIOD = 100;
 
-type ServerData = { keyvalues: any; log: [RawLogLine] };
+type ServerData = { keyvalues: { [key: string]: string }; log: [RawLogLine] };
+
 type RawLogLine = {
   timestamp: number;
   query: string;
