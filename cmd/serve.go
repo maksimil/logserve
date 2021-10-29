@@ -49,6 +49,10 @@ func LogHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 		query := string(rqbody)
 		response := state.ProcessQuery(query)
+
+		log := state.RawLog[len(state.RawLog)-1]
+		fmt.Printf("[%d] %s\n", log.Timestamp, log.Query)
+
 		fmt.Fprint(rw, response)
 	} else {
 		log.Printf(ERR_METHOD, "/log", r.Method)
@@ -87,6 +91,14 @@ func RunServe(cmd *cobra.Command, args []string) {
 
 	// adding log information
 	http.HandleFunc("/log", LogHandler)
+
+	go func() {
+		queries := []string{"LOG hello", "KEY_SET value=a", "KEY_REMOVE key=a", "KET_SET key=a value=b", "U hello"}
+		for _, query := range queries {
+			fmt.Println(query)
+			fmt.Println(state.ProcessQuery(query))
+		}
+	}()
 
 	fmt.Printf("Listening on http://localhost:%d\n", port)
 	fmt.Printf("Access data on http://localhost:%d/data\n", port)

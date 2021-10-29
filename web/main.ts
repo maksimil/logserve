@@ -3,13 +3,22 @@ import { html, render } from "lit-html";
 const UPDATE_PERIOD = 100;
 
 type ServerData = { keyvalues: any; log: [RawLogLine] };
-type RawLogLine = { timestamp: number; query: string };
+type RawLogLine = {
+  timestamp: number;
+  query: string;
+  attributes: { group: string };
+};
 
 let data: ServerData;
 
-const QUERY_COLORS = {
+const CMD_COLORS = {
   LOG: "text-blue-500",
   _: "text-red-600",
+};
+
+const ARGS_COLORS = {
+  invalid_cmd: "text-red-600",
+  _: "text-black",
 };
 
 const ParseTimeStamp = (timestamp: number) => {
@@ -22,15 +31,6 @@ const ParseTimeStamp = (timestamp: number) => {
   return `${hh}:${mm}:${ss}.${mss}`;
 };
 
-const QuerySplit = (query: string) => {
-  const [cmd, args] = query.split(" ", 2);
-  const color = QUERY_COLORS[cmd] || QUERY_COLORS["_"];
-  return {
-    cmd,
-    query: html`<span class="${color}">${cmd}</span> <span>${args}</span>`,
-  };
-};
-
 const MainElement = ({ keyvalues, log }: ServerData) =>
   html`<div class="font-mono">
     <table>
@@ -38,11 +38,19 @@ const MainElement = ({ keyvalues, log }: ServerData) =>
     </table>
   </div>`;
 
-const LogElement = (log: RawLogLine) =>
-  html`<tr>
-    <td class="p-0">[${ParseTimeStamp(log.timestamp)}]</td>
-    <td class="p-0">${QuerySplit(log.query).query}</td>
+const LogElement = (log: RawLogLine) => {
+  const [cmd, args] = log.query.split(" ", 2);
+  const cmd_color = CMD_COLORS[cmd] || CMD_COLORS["_"];
+  const args_color = ARGS_COLORS[log.attributes.group] || ARGS_COLORS["_"];
+
+  return html`<tr>
+    <td>[${ParseTimeStamp(log.timestamp)}]</td>
+    <td>
+      <span class="${cmd_color}">${cmd}</span>
+      <span class="${args_color}">${args}</span>
+    </td>
   </tr>`;
+};
 
 const Render = async () => {
   data = await (await fetch("/data/json")).json();

@@ -20,15 +20,16 @@ Logs are sent to `/log` with POST in plain text. Logs are sent in form of querie
 
 ## Getting data from the website
 
-Requests are sent to `/data` with GET.
+Requests are sent to `/data` with GET.  
+`LogLine: {timestamp, query, attributes: {group}}`
 
 - [x] Getting json of the state
         `/data/json`  
-         returns in form `{keyvalues, log: [{timestamp, query}]}`
+         returns in form `{keyvalues, log: [LogLine]}`
 - [x] Getting logs since a timestamp  
          `/data/since?t=<timestamp>`  
-         returns all the logs in raw form since `timestamp` in form `[{timestamp, query}]`
-- [ ] add group argument
+         returns all the logs in raw form since `timestamp` in form `[LogLine]`
+- [x] add group argument
 - [ ] add filtering in groups
 - [x] Static page returning from `/data`
 - [ ] Display log information in form of `<timestamp> <type> <values from data>`

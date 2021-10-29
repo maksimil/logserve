@@ -5,9 +5,23 @@ import (
 	"time"
 )
 
+const GROUP_DEFAULT = "default"
+const GROUP_INVALID = "invalid_cmd"
+
+type LogAttributes struct {
+	Group string `json:"group"`
+}
+
+func InvalidAttributes() LogAttributes {
+	return LogAttributes{
+		Group: GROUP_INVALID,
+	}
+}
+
 type RawLogLine struct {
-	Timestamp int64  `json:"timestamp"`
-	Query     string `json:"query"`
+	Timestamp  int64         `json:"timestamp"`
+	Query      string        `json:"query"`
+	Attributes LogAttributes `json:"attributes"`
 }
 
 type ServerState struct {
@@ -34,12 +48,14 @@ func (state *ServerState) ProcessQuery(query string) string {
 
 	function, includes := TYPES_QUERIES[ty]
 
-	state.RawLog = append(state.RawLog, RawLogLine{timestamp, query})
-	fmt.Printf("[%d] %s\n", timestamp, query)
-
 	if includes {
-		return function(endquery, state)
+		err, attrs := function(endquery, state)
+		state.RawLog = append(state.RawLog,
+			RawLogLine{timestamp, query, attrs})
+		return err
 	} else {
+		state.RawLog = append(state.RawLog,
+			RawLogLine{timestamp, query, InvalidAttributes()})
 		return fmt.Sprintf("Server didn't find command %s", ty)
 	}
 }
@@ -52,50 +68,63 @@ func (state *ServerState) LogsSince(timestamp int64) []RawLogLine {
 	return state.RawLog[i+1:]
 }
 
-var TYPES_QUERIES map[string]func(query string, state *ServerState) string
+var TYPES_QUERIES map[string]func(query string, state *ServerState) (string, LogAttributes)
 
 func init() {
-	TYPES_QUERIES = map[string]func(query string, state *ServerState) string{
-		"LOG": func(query string, state *ServerState) string {
-			return "OK"
+	TYPES_QUERIES = map[string]func(query string, state *ServerState) (string, LogAttributes){
+		"LOG": func(query string, state *ServerState) (string, LogAttributes) {
+			var log, group string
+			log = ""
+			group = GROUP_DEFAULT
+			PopulateQueryArgs(map[string]ArgAdress{
+				"":      Optional(&log),
+				"group": Optional(&group),
+			}, query)
+
+			return "OK", LogAttributes{Group: group}
 		},
 
-		"KEY_SET": func(query string, state *ServerState) string {
-			var key, value string
+		"KEY_SET": func(query string, state *ServerState) (string, LogAttributes) {
+			var key, value, group string
+			group = GROUP_DEFAULT
 			err := PopulateQueryArgs(map[string]ArgAdress{
 				"key":   Adress(&key),
 				"value": Adress(&value),
+				"group": Optional(&group),
 			}, query)
 
 			if err != nil {
-				return err.Error()
+				return err.Error(), InvalidAttributes()
 			}
 
 			if key == "" {
-				return "key should not be an empty string"
+				return "key should not be an empty string", InvalidAttributes()
 			}
 
 			state.KeyValues[key] = value
-			return "OK"
+
+			return "OK", LogAttributes{Group: group}
 		},
 
-		"KEY_REMOVE": func(query string, state *ServerState) string {
-			var key string
+		"KEY_REMOVE": func(query string, state *ServerState) (string, LogAttributes) {
+			var key, group string
+			group = GROUP_DEFAULT
 			err := PopulateQueryArgs(map[string]ArgAdress{
-				"key": Adress(&key),
+				"key":   Adress(&key),
+				"group": Optional(&group),
 			}, query)
 
 			if err != nil {
-				return err.Error()
+				return err.Error(), InvalidAttributes()
 			}
 
 			if key == "" {
-				return "key should not be an empty string"
+				return "key should not be an empty string", InvalidAttributes()
 			}
 
 			delete(state.KeyValues, key)
 
-			return "OK"
+			return "OK", LogAttributes{Group: group}
 		},
 	}
 }

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
 	"testing"
 
 	goblin "github.com/franela/goblin"
@@ -25,18 +23,6 @@ func TestServerState(t *testing.T) {
 			g.Assert(serverstate.RawLog[0].Query).Eql("LOG hello")
 		})
 
-		g.It("convert to json", func() {
-			serverstate.ProcessQuery("LOG hello")
-			serverstate.RawLog[0].Timestamp = 0
-
-			var buff bytes.Buffer
-			json.NewEncoder(&buff).Encode(serverstate)
-
-			data := buff.String()
-
-			g.Assert(data).Eql("{\"keyvalues\":{},\"log\":[{\"timestamp\":0,\"query\":\"LOG hello\"}]}\n")
-		})
-
 		g.It(".LogsSince()", func() {
 			serverstate.ProcessQuery("LOG hello")
 			serverstate.RawLog[0].Timestamp = 0
@@ -44,14 +30,15 @@ func TestServerState(t *testing.T) {
 			serverstate.ProcessQuery("LOG hi")
 			serverstate.RawLog[1].Timestamp = 1
 
-			g.Assert(serverstate.LogsSince(1)).Eql([]RawLogLine{{1, "LOG hi"}})
+			g.Assert(serverstate.LogsSince(1)).Eql(
+				[]RawLogLine{{1, "LOG hi", LogAttributes{Group: GROUP_DEFAULT}}})
 			g.Assert(serverstate.LogsSince(0)).Eql(serverstate.RawLog)
 		})
 
 		g.It("Try invalid command", func() {
 			r := serverstate.ProcessQuery("L hello")
 
-			g.Assert(len(serverstate.RawLog)).Eql(0)
+			g.Assert(len(serverstate.RawLog)).Eql(1)
 			g.Assert(r).Eql("Server didn't find command L")
 		})
 
@@ -83,12 +70,23 @@ func TestServerState(t *testing.T) {
 		}
 
 		g.It("KEY_SET and KEY_REMOVE errors", func() {
-			for _, keyerror := range keyerrors {
+			for i, keyerror := range keyerrors {
 				r := serverstate.ProcessQuery(keyerror[0])
 				g.Assert(r).Eql(keyerror[1])
+				g.Assert(serverstate.RawLog[i].Attributes.Group).Eql(GROUP_INVALID)
 			}
 
 			g.Assert(len(serverstate.KeyValues)).Eql(0)
+		})
+
+		g.It("Set group", func() {
+			serverstate.ProcessQuery("LOG hello group=red")
+			serverstate.ProcessQuery("KEY_SET key=hello value=3 group=red")
+			serverstate.ProcessQuery("KEY_REMOVE key=hello group=red")
+
+			for _, v := range serverstate.RawLog {
+				g.Assert(v.Attributes.Group).Eql("red")
+			}
 		})
 	})
 
